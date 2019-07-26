@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gifimage/flutter_gifimage.dart';
 void main() => runApp(MyApp());
@@ -55,6 +56,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_){
       controller1.repeat(min: 0,max: 53,period: Duration(milliseconds: 200));
     });
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      controller2.repeat(min: 0,max: 19,period: Duration(milliseconds: 200));
+    });
+    controller3 = GifController(vsync: this,duration: Duration(milliseconds: 200),reverseDuration: Duration(milliseconds: 200));
     super.initState();
   }
 
@@ -72,6 +77,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        bottom: TabBar(
+          tabs: <Widget>[Tab(child: Text("不同类型图片"),),Tab(child: Text("控制方式"),)],
+        ),
       ),
       body: TabBarView(
         children: <Widget>[
@@ -81,10 +89,55 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               GifImage(
                 controller: controller1,
                 image: AssetImage("images/animate.gif"),
+              ),
+              Text("网络"),
+              GifImage(
+                controller: controller2,
+                image: NetworkImage("http://img.mp.itc.cn/upload/20161107/5cad975eee9e4b45ae9d3c1238ccf91e.jpg"),
               )
             ],
           ),
-          Container()
+          Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  RaisedButton(
+                    child: Text("无限循环"),
+                    onPressed: (){
+                      controller3.repeat(min: 0,max: 25,period: Duration(milliseconds: 500));
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text("暂停"),
+                    onPressed: (){
+                      controller3.stop();
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text("播放到末尾一次"),
+                    onPressed: (){
+                      controller3.animateTo(52,duration: Duration(milliseconds: 1000));
+                    },
+                  )
+                ],
+              ),
+              Slider(
+                  onChanged: (v){
+                    controller3.value = v;
+                    setState(() {
+
+                    });
+                  },
+                max: 53,
+                min: 0,
+                value: controller3.value,
+              ),
+              GifImage(
+                controller: controller3,
+                image: AssetImage("images/animate.gif"),
+              ),
+            ],
+          )
         ],
       ),
     ),);
