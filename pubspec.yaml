@@ -1,0 +1,16 @@
+name: flutter_gifimage
+description: A new Flutter package project.
+version: 1.0.0
+author:
+homepage:
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+flutter:
+
