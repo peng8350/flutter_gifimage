@@ -99,59 +99,7 @@ class GifImageState extends State<GifImage>{
     return  _infos==null?null:_infos[_curIndex];
   }
 
-  static final HttpClient _sharedHttpClient = HttpClient()..autoUncompress = false;
 
-  static HttpClient get _httpClient {
-    HttpClient client = _sharedHttpClient;
-    assert(() {
-      if (debugNetworkImageHttpClientProvider != null)
-        client = debugNetworkImageHttpClientProvider();
-      return true;
-    }());
-    return client;
-  }
-
-  Future<void> _fetchImage() async{
-        ImageProvider provider = widget.image;
-        dynamic data;
-        String key =provider is NetworkImage?provider.url:provider is AssetImage?provider.assetName:provider is MemoryImage?provider.bytes.toString():"";
-        if(GifImage.cache.caches.containsKey(key)){
-          _infos = GifImage.cache.caches[key];
-          return ;
-        }
-        if(provider is NetworkImage){
-          final Uri resolved = Uri.base.resolve(provider.url);
-          final HttpClientRequest request = await _httpClient.getUrl(resolved);
-          provider.headers?.forEach((String name, String value) {
-            request.headers.add(name, value);
-          });
-          final HttpClientResponse response = await request.close();
-          data = await consolidateHttpClientResponseBytes(
-            response,
-          );
-
-        }
-        else if(provider is AssetImage){
-          AssetBundleImageKey key = await provider.obtainKey(ImageConfiguration());
-          data = await key.bundle.load(key.name);
-        }
-        else if(provider is FileImage){
-          data = await provider.file.readAsBytes();
-        }
-        else if(provider is MemoryImage){
-          data =  provider.bytes;
-        }
-
-        ui.Codec codec=await PaintingBinding.instance.instantiateImageCodec(data.buffer.asUint8List());
-        _infos = [];
-        for(int i = 0;i<codec.frameCount;i++){
-          FrameInfo frameInfo = await codec.getNextFrame();
-          //scale ??
-          _infos.add(ImageInfo(image: frameInfo.image));
-        }
-        GifImage.cache.caches.putIfAbsent(key, () => _infos);
-
-  }
 
   @override
   void initState() {
@@ -169,8 +117,9 @@ class GifImageState extends State<GifImage>{
   void didUpdateWidget(GifImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.image != oldWidget.image) {
-      _fetchImage().then((_){
+      fetchGif(widget.image).then((imageInfors){
         setState(() {
+          _infos = imageInfors;
           _fetchComplete=true;
           _curIndex = widget.controller.value.toInt();
           if(widget.onFetchCompleted!=null){
@@ -197,8 +146,9 @@ class GifImageState extends State<GifImage>{
   void didChangeDependencies() {
     super.didChangeDependencies();
     if(_infos==null){
-      _fetchImage().then((_){
+      fetchGif(widget.image).then((imageInfors){
         setState(() {
+          _infos = imageInfors;
           _fetchComplete=true;
           _curIndex = widget.controller.value.toInt();
           if(widget.onFetchCompleted!=null){
@@ -233,4 +183,60 @@ class GifImageState extends State<GifImage>{
       child: image,
     );
   }
+}
+
+
+
+final HttpClient _sharedHttpClient = HttpClient()..autoUncompress = false;
+
+HttpClient get _httpClient {
+  HttpClient client = _sharedHttpClient;
+  assert(() {
+    if (debugNetworkImageHttpClientProvider != null)
+      client = debugNetworkImageHttpClientProvider();
+    return true;
+  }());
+  return client;
+}
+
+
+Future<List<ImageInfo>> fetchGif(ImageProvider provider) async{
+  List<ImageInfo> infos = [];
+  dynamic data;
+  String key =provider is NetworkImage?provider.url:provider is AssetImage?provider.assetName:provider is MemoryImage?provider.bytes.toString():"";
+  if(GifImage.cache.caches.containsKey(key)){
+    infos = GifImage.cache.caches[key];
+    return infos;
+  }
+  if(provider is NetworkImage){
+    final Uri resolved = Uri.base.resolve(provider.url);
+    final HttpClientRequest request = await _httpClient.getUrl(resolved);
+    provider.headers?.forEach((String name, String value) {
+      request.headers.add(name, value);
+    });
+    final HttpClientResponse response = await request.close();
+    data = await consolidateHttpClientResponseBytes(
+      response,
+    );
+  }
+  else if(provider is AssetImage){
+    AssetBundleImageKey key = await provider.obtainKey(ImageConfiguration());
+    data = await key.bundle.load(key.name);
+  }
+  else if(provider is FileImage){
+    data = await provider.file.readAsBytes();
+  }
+  else if(provider is MemoryImage){
+    data =  provider.bytes;
+  }
+
+  ui.Codec codec=await PaintingBinding.instance.instantiateImageCodec(data.buffer.asUint8List());
+  infos = [];
+  for(int i = 0;i<codec.frameCount;i++){
+    FrameInfo frameInfo = await codec.getNextFrame();
+    //scale ??
+    infos.add(ImageInfo(image: frameInfo.image));
+  }
+  GifImage.cache.caches.putIfAbsent(key, () => infos);
+  return infos;
 }

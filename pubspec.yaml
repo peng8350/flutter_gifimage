@@ -1,8 +1,8 @@
 name: flutter_gifimage
-description: A new Flutter package project.
+description: a gifimage for flutter,for solving gif cannot be controlled speed,progress
 version: 1.0.0
-author:
-homepage:
+author: Jpeng <peng8350@gmail.com>
+homepage: https://github.com/peng8350/flutter_gifimage
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
