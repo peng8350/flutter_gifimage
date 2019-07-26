@@ -76,7 +76,10 @@ class GifImageState extends State<GifImage>{
   List<ImageInfo> _infos;
   int _curIndex = 0;
   bool _fetchComplete= false;
-  ImageInfo get _imageInfo => _infos==null?null:_infos[_curIndex];
+  ImageInfo get _imageInfo {
+   if(!_fetchComplete)return null;
+    return  _infos==null?null:_infos[_curIndex];
+  }
 
   static final HttpClient _sharedHttpClient = HttpClient()..autoUncompress = false;
 
