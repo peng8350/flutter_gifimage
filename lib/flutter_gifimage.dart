@@ -13,7 +13,23 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+class GifCache{
+  final Map<String,List<ImageInfo>> caches= Map();
 
+
+  void clear() {
+    caches.clear();
+  }
+
+  bool evict(Object key) {
+    final List<ImageInfo> pendingImage = caches.remove(key);
+    if(pendingImage!=null){
+      return true;
+    }
+    return false;
+  }
+
+}
 /// controll gif
 class GifController extends AnimationController{
 
@@ -70,6 +86,8 @@ class GifImage extends StatefulWidget{
   State<StatefulWidget> createState() {
     return new GifImageState();
   }
+
+  static GifCache cache = GifCache();
 }
 
 class GifImageState extends State<GifImage>{
@@ -93,18 +111,21 @@ class GifImageState extends State<GifImage>{
     return client;
   }
 
-  void _fetchImage() async{
+  Future<void> _fetchImage() async{
         ImageProvider provider = widget.image;
         dynamic data;
+        String key =provider is NetworkImage?provider.url:provider is AssetImage?provider.assetName:provider is MemoryImage?provider.bytes.toString():"";
+        if(GifImage.cache.caches.containsKey(key)){
+          _infos = GifImage.cache.caches[key];
+          return ;
+        }
         if(provider is NetworkImage){
-
           final Uri resolved = Uri.base.resolve(provider.url);
           final HttpClientRequest request = await _httpClient.getUrl(resolved);
           provider.headers?.forEach((String name, String value) {
             request.headers.add(name, value);
           });
           final HttpClientResponse response = await request.close();
-
           data = await consolidateHttpClientResponseBytes(
             response,
           );
@@ -128,14 +149,8 @@ class GifImageState extends State<GifImage>{
           //scale ??
           _infos.add(ImageInfo(image: frameInfo.image));
         }
+        GifImage.cache.caches.putIfAbsent(key, () => _infos);
 
-        setState(() {
-          _fetchComplete=true;
-          _curIndex = widget.controller.value.toInt();
-          if(widget.onFetchCompleted!=null){
-            widget.onFetchCompleted();
-          }
-        });
   }
 
   @override
@@ -154,7 +169,15 @@ class GifImageState extends State<GifImage>{
   void didUpdateWidget(GifImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.image != oldWidget.image) {
-      _fetchImage();
+      _fetchImage().then((_){
+        setState(() {
+          _fetchComplete=true;
+          _curIndex = widget.controller.value.toInt();
+          if(widget.onFetchCompleted!=null){
+            widget.onFetchCompleted();
+          }
+        });
+      });
     }
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller.removeListener(_listener);
@@ -174,7 +197,15 @@ class GifImageState extends State<GifImage>{
   void didChangeDependencies() {
     super.didChangeDependencies();
     if(_infos==null){
-      _fetchImage();
+      _fetchImage().then((_){
+        setState(() {
+          _fetchComplete=true;
+          _curIndex = widget.controller.value.toInt();
+          if(widget.onFetchCompleted!=null){
+            widget.onFetchCompleted();
+          }
+        });
+      });
     }
   }
 
