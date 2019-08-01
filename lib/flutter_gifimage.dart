@@ -13,9 +13,9 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+/// cache gif fetched image
 class GifCache{
   final Map<String,List<ImageInfo>> caches= Map();
-
 
   void clear() {
     caches.clear();
@@ -28,8 +28,8 @@ class GifCache{
     }
     return false;
   }
-
 }
+
 /// controll gif
 class GifController extends AnimationController{
 
@@ -46,7 +46,14 @@ class GifController extends AnimationController{
       animationBehavior:animationBehavior??AnimationBehavior.normal,
       vsync:vsync);
 
+  @override
+  void reset() {
+    // TODO: implement reset
+    value = 0.0;
+  }
+
 }
+
 
 class GifImage extends StatefulWidget{
   GifImage({

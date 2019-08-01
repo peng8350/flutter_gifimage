@@ -8,19 +8,52 @@ We should know that in order to achieve Gif in flutter, we can use Image, but we
 ![](arts/gif.gif)
 
 # Usage(Simple)
+  add in pubspec
+
+   ```dart
+
+        flutter_gifimage: ^1.0.0
+
+   ```
+
+ simple usage
 
  ```dart
-     controller4= GifController(vsync: this);
+     GifController controller= GifController(vsync: this);
 
 
      GifImage(
           controller: controller,
-          image: MemoryImage(base64Decode(base64_url)),
+          image: AssetImage("images/animate.gif"),
      )
 
  ```
- GifController is just a AnimationController, usage is the same with AnimationController,If you want to play animate Between two frames ,you just called 'repeat(min: max:)','period' can change the repeat speed
- ,If you want to stop in one frame ,  call 'controller.value = .. '
+
+ list the most common operate in GifController:
+
+
+ ```dart
+ // loop from 0 frame to 29 frame
+ controller.repeat(min:0,max:29,period:Duration(millseconds:300));
+
+ // jumpTo thrid frame(index from 0)
+ controller.value = 0;
+
+ // from current frame to 26 frame
+ controller.animateTo(26);
+
+ ```
+
+ If you need to preCache gif,try this
+
+ ```dart
+ // put imageProvider
+ fetchGif(AssetImage("images/animate.gif"));
+
+ ```
+
+
+
 
 # Thanks
 * [gif_ani](https://github.com/hyz1992/gif_ani)  (thanks for giving me idea)
