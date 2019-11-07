@@ -1,6 +1,6 @@
 name: flutter_gifimage
 description: a gifimage for flutter,for solving gif cannot be controlled speed,progress
-version: 1.0.0
+version: 1.0.1
 author: Jpeng <peng8350@gmail.com>
 homepage: https://github.com/peng8350/flutter_gifimage
 

@@ -102,7 +102,7 @@ class GifImageState extends State<GifImage>{
   int _curIndex = 0;
   bool _fetchComplete= false;
   ImageInfo get _imageInfo {
-   if(!_fetchComplete)return null;
+    if(!_fetchComplete)return null;
     return  _infos==null?null:_infos[_curIndex];
   }
 
@@ -125,14 +125,15 @@ class GifImageState extends State<GifImage>{
     super.didUpdateWidget(oldWidget);
     if (widget.image != oldWidget.image) {
       fetchGif(widget.image).then((imageInfors){
-        setState(() {
-          _infos = imageInfors;
-          _fetchComplete=true;
-          _curIndex = widget.controller.value.toInt();
-          if(widget.onFetchCompleted!=null){
-            widget.onFetchCompleted();
-          }
-        });
+        if(mounted)
+          setState(() {
+            _infos = imageInfors;
+            _fetchComplete=true;
+            _curIndex = widget.controller.value.toInt();
+            if(widget.onFetchCompleted!=null){
+              widget.onFetchCompleted();
+            }
+          });
       });
     }
     if (widget.controller != oldWidget.controller) {
@@ -143,9 +144,10 @@ class GifImageState extends State<GifImage>{
 
   void _listener(){
     if(_curIndex!=widget.controller.value&&_fetchComplete){
-      setState(() {
-        _curIndex = widget.controller.value.toInt();
-      });
+      if(mounted)
+        setState(() {
+          _curIndex = widget.controller.value.toInt();
+        });
     }
   }
 
@@ -154,14 +156,15 @@ class GifImageState extends State<GifImage>{
     super.didChangeDependencies();
     if(_infos==null){
       fetchGif(widget.image).then((imageInfors){
-        setState(() {
-          _infos = imageInfors;
-          _fetchComplete=true;
-          _curIndex = widget.controller.value.toInt();
-          if(widget.onFetchCompleted!=null){
-            widget.onFetchCompleted();
-          }
-        });
+        if(mounted)
+          setState(() {
+            _infos = imageInfors;
+            _fetchComplete=true;
+            _curIndex = widget.controller.value.toInt();
+            if(widget.onFetchCompleted!=null){
+              widget.onFetchCompleted();
+            }
+          });
       });
     }
   }
