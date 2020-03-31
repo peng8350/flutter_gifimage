@@ -7,3 +7,7 @@
 
 ## 1.0.1
 * add check mounted when setState
+
+## 1.1.0
+* Add classes with more details to allow for easier Gif manipulation. Added default duration parameter. 
+* Formatted code.
