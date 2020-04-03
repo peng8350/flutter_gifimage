@@ -30,25 +30,72 @@ class GifCache {
   }
 }
 
-/// controll gif
+/// control gif
 class GifController extends AnimationController {
-  GifController(
-      {@required TickerProvider vsync,
-      double value = 0.0,
-      Duration reverseDuration,
-      Duration duration,
-      AnimationBehavior animationBehavior})
-      : super.unbounded(
-            value: value,
-            reverseDuration: reverseDuration,
-            duration: duration,
-            animationBehavior: animationBehavior ?? AnimationBehavior.normal,
-            vsync: vsync);
+  // ignore: unused_field
+  double _currentValue = 0;
+
+  GifController({
+    @required TickerProvider vsync,
+    double value = 0.0,
+    Duration reverseDuration,
+    Duration duration,
+    AnimationBehavior animationBehavior,
+    double upperBound,
+  }) : super(
+          lowerBound: 0.0,
+          upperBound: upperBound,
+          value: value,
+          reverseDuration: reverseDuration,
+          duration: duration,
+          animationBehavior: animationBehavior ?? AnimationBehavior.normal,
+          vsync: vsync,
+        );
+
+  GifController.fromGif({
+    @required TickerProvider vsync,
+    @required Gif gif,
+    double value = 0.0,
+    AnimationBehavior animationBehavior,
+  }) : super(
+          lowerBound: 0.0,
+          upperBound: gif.length.toDouble(),
+          value: value,
+          duration: gif.duration,
+          reverseDuration: gif.duration,
+          animationBehavior: animationBehavior ?? AnimationBehavior.normal,
+          vsync: vsync,
+        );
 
   @override
   void reset() {
-    // TODO: implement reset
     value = 0.0;
+  }
+
+  TickerFuture repeatFrom({
+    double from,
+    double min,
+    double max,
+    bool reverse = false,
+    Duration period,
+  }) =>
+      super.forward(from: from).then((value) =>
+          super.repeat(min: min, max: max, reverse: reverse, period: period));
+
+  TickerFuture play({double from, @required bool repeat}) {
+    if (repeat) {
+      return super.repeat(min: 0, max: this.upperBound);
+    }
+    return forward(from: from);
+  }
+
+  void resume() => throw UnsupportedError('Not yet implemented');
+
+  /// Returns the value of the controller at the moment this method is called.
+  @override
+  double stop({bool canceled = true}) {
+    super.stop(canceled: canceled);
+    return _currentValue = value;
   }
 }
 
@@ -141,10 +188,9 @@ class GifImageState extends State<GifImage> {
 
   void _listener() {
     if (_curIndex != widget.controller.value && _fetchComplete) {
-      if (mounted)
-        setState(() {
-          _curIndex = widget.controller.value.toInt();
-        });
+      if (mounted) {
+        _curIndex = widget.controller.value.toInt();
+      }
     }
   }
 
@@ -152,10 +198,10 @@ class GifImageState extends State<GifImage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (gif == null) {
-      fetchGif(widget.image).then((imageInfors) {
+      fetchGif(widget.image).then((imageInfo) {
         if (mounted)
           setState(() {
-            gif = imageInfors;
+            gif = imageInfo;
             _fetchComplete = true;
             _curIndex = widget.controller.value.toInt();
             if (widget.onFetchCompleted != null) {

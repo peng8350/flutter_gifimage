@@ -16,6 +16,8 @@ class Gif {
   static Duration _getDuration(List<GifImageInfo> info) {
     return info.fold(Duration(), (value, gifInfo) => value + gifInfo.duration);
   }
+
+  int get length => imageInfo.length;
 }
 
 class GifImageInfo {
