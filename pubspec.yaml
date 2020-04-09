@@ -1,7 +1,6 @@
 name: flutter_gifimage
-description: a gifimage for flutter,for solving gif cannot be controlled speed,progress
-version: 1.0.1
-author: Jpeng <peng8350@gmail.com>
+description: A GifImage widget for Flutter allowing you to control the speed and progress of the GIF.
+version: 1.1.0
 homepage: https://github.com/peng8350/flutter_gifimage
 
 environment:
@@ -11,6 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-dev_dependencies:
 flutter:
+
 
