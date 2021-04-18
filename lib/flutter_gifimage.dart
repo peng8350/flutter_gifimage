@@ -22,7 +22,7 @@ class GifCache{
   }
 
   bool evict(Object key) {
-    final List<ImageInfo> pendingImage = caches.remove(key);
+    final List<ImageInfo>? pendingImage = caches.remove(key);
     if(pendingImage!=null){
       return true;
     }
@@ -34,11 +34,11 @@ class GifCache{
 class GifController extends AnimationController{
 
   GifController({
-    @required TickerProvider vsync,
+    required TickerProvider vsync,
     double value=0.0,
-    Duration reverseDuration,
-    Duration duration,
-    AnimationBehavior animationBehavior
+    Duration? reverseDuration,
+    Duration? duration,
+    AnimationBehavior? animationBehavior
   }):super.unbounded(
       value:value,
       reverseDuration:reverseDuration,
@@ -57,8 +57,8 @@ class GifController extends AnimationController{
 
 class GifImage extends StatefulWidget{
   GifImage({
-    @required this.image,
-    @required this.controller,
+    required this.image,
+    required this.controller,
     this.semanticLabel,
     this.excludeFromSemantics = false,
     this.width,
@@ -73,20 +73,20 @@ class GifImage extends StatefulWidget{
     this.matchTextDirection = false,
     this.gaplessPlayback = false,
   });
-  final VoidCallback onFetchCompleted;
+  final VoidCallback? onFetchCompleted;
   final GifController controller;
   final ImageProvider image;
-  final double width;
-  final double height;
-  final Color color;
-  final BlendMode colorBlendMode;
-  final BoxFit fit;
+  final double? width;
+  final double? height;
+  final Color? color;
+  final BlendMode? colorBlendMode;
+  final BoxFit? fit;
   final AlignmentGeometry alignment;
   final ImageRepeat repeat;
-  final Rect centerSlice;
+  final Rect? centerSlice;
   final bool matchTextDirection;
   final bool gaplessPlayback;
-  final String semanticLabel;
+  final String? semanticLabel;
   final bool excludeFromSemantics;
 
   @override
@@ -98,12 +98,12 @@ class GifImage extends StatefulWidget{
 }
 
 class GifImageState extends State<GifImage>{
-  List<ImageInfo> _infos;
+  List<ImageInfo>? _infos;
   int _curIndex = 0;
   bool _fetchComplete= false;
-  ImageInfo get _imageInfo {
-    if(!_fetchComplete)return null;
-    return  _infos==null?null:_infos[_curIndex];
+  ImageInfo? get _imageInfo {
+    if(!_fetchComplete) return null;
+    return _infos==null ? null : _infos![_curIndex];
   }
 
 
@@ -131,7 +131,7 @@ class GifImageState extends State<GifImage>{
             _fetchComplete=true;
             _curIndex = widget.controller.value.toInt();
             if(widget.onFetchCompleted!=null){
-              widget.onFetchCompleted();
+              widget.onFetchCompleted!();
             }
           });
       });
@@ -162,7 +162,7 @@ class GifImageState extends State<GifImage>{
             _fetchComplete=true;
             _curIndex = widget.controller.value.toInt();
             if(widget.onFetchCompleted!=null){
-              widget.onFetchCompleted();
+              widget.onFetchCompleted!();
             }
           });
       });
@@ -203,7 +203,7 @@ HttpClient get _httpClient {
   HttpClient client = _sharedHttpClient;
   assert(() {
     if (debugNetworkImageHttpClientProvider != null)
-      client = debugNetworkImageHttpClientProvider();
+      client = debugNetworkImageHttpClientProvider!();
     return true;
   }());
   return client;
@@ -215,7 +215,7 @@ Future<List<ImageInfo>> fetchGif(ImageProvider provider) async{
   dynamic data;
   String key =provider is NetworkImage?provider.url:provider is AssetImage?provider.assetName:provider is MemoryImage?provider.bytes.toString():"";
   if(GifImage.cache.caches.containsKey(key)){
-    infos = GifImage.cache.caches[key];
+    infos = GifImage.cache.caches[key]!;
     return infos;
   }
   if(provider is NetworkImage){
@@ -240,7 +240,7 @@ Future<List<ImageInfo>> fetchGif(ImageProvider provider) async{
     data =  provider.bytes;
   }
 
-  ui.Codec codec=await PaintingBinding.instance.instantiateImageCodec(data.buffer.asUint8List());
+  ui.Codec codec=await PaintingBinding.instance!.instantiateImageCodec(data.buffer.asUint8List());
   infos = [];
   for(int i = 0;i<codec.frameCount;i++){
     FrameInfo frameInfo = await codec.getNextFrame();
