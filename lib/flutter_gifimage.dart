@@ -56,7 +56,8 @@ class GifController extends AnimationController{
 
 
 class GifImage extends StatefulWidget{
-  GifImage({
+  const GifImage({
+    Key key,
     @required this.image,
     @required this.controller,
     this.semanticLabel,
@@ -72,7 +73,7 @@ class GifImage extends StatefulWidget{
     this.centerSlice,
     this.matchTextDirection = false,
     this.gaplessPlayback = false,
-  });
+  }) : super(key: key);
   final VoidCallback onFetchCompleted;
   final GifController controller;
   final ImageProvider image;
