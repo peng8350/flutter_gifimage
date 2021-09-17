@@ -6,24 +6,23 @@
 
 library flutter_gifimage;
 
-
-import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'dart:ui' as ui show Codec;
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// cache gif fetched image
-class GifCache{
-  final Map<String,List<ImageInfo>> caches= Map();
+class GifCache {
+  final Map<String, List<ImageInfo>> caches = Map();
 
   void clear() {
     caches.clear();
   }
 
   bool evict(Object key) {
-    final List<ImageInfo> pendingImage = caches.remove(key);
-    if(pendingImage!=null){
+    final List<ImageInfo>? pendingImage = caches.remove(key);
+    if (pendingImage != null) {
       return true;
     }
     return false;
@@ -31,34 +30,31 @@ class GifCache{
 }
 
 /// controll gif
-class GifController extends AnimationController{
-
-  GifController({
-    @required TickerProvider vsync,
-    double value=0.0,
-    Duration reverseDuration,
-    Duration duration,
-    AnimationBehavior animationBehavior
-  }):super.unbounded(
-      value:value,
-      reverseDuration:reverseDuration,
-      duration:duration,
-      animationBehavior:animationBehavior??AnimationBehavior.normal,
-      vsync:vsync);
+class GifController extends AnimationController {
+  GifController(
+      {required TickerProvider vsync,
+      double value = 0.0,
+      Duration? reverseDuration,
+      Duration? duration,
+      AnimationBehavior? animationBehavior})
+      : super.unbounded(
+            value: value,
+            reverseDuration: reverseDuration,
+            duration: duration,
+            animationBehavior: animationBehavior ?? AnimationBehavior.normal,
+            vsync: vsync);
 
   @override
   void reset() {
     // TODO: implement reset
     value = 0.0;
   }
-
 }
 
-
-class GifImage extends StatefulWidget{
+class GifImage extends StatefulWidget {
   GifImage({
-    @required this.image,
-    @required this.controller,
+    required this.image,
+    required this.controller,
     this.semanticLabel,
     this.excludeFromSemantics = false,
     this.width,
@@ -73,20 +69,20 @@ class GifImage extends StatefulWidget{
     this.matchTextDirection = false,
     this.gaplessPlayback = false,
   });
-  final VoidCallback onFetchCompleted;
+  final VoidCallback? onFetchCompleted;
   final GifController controller;
   final ImageProvider image;
-  final double width;
-  final double height;
-  final Color color;
-  final BlendMode colorBlendMode;
-  final BoxFit fit;
+  final double? width;
+  final double? height;
+  final Color? color;
+  final BlendMode? colorBlendMode;
+  final BoxFit? fit;
   final AlignmentGeometry alignment;
   final ImageRepeat repeat;
-  final Rect centerSlice;
+  final Rect? centerSlice;
   final bool matchTextDirection;
   final bool gaplessPlayback;
-  final String semanticLabel;
+  final String? semanticLabel;
   final bool excludeFromSemantics;
 
   @override
@@ -97,16 +93,14 @@ class GifImage extends StatefulWidget{
   static GifCache cache = GifCache();
 }
 
-class GifImageState extends State<GifImage>{
-  List<ImageInfo> _infos;
+class GifImageState extends State<GifImage> {
+  List<ImageInfo>? _infos;
   int _curIndex = 0;
-  bool _fetchComplete= false;
-  ImageInfo get _imageInfo {
-    if(!_fetchComplete)return null;
-    return  _infos==null?null:_infos[_curIndex];
+  bool _fetchComplete = false;
+  ImageInfo? get _imageInfo {
+    if (!_fetchComplete) return null;
+    return _infos == null ? null : _infos![_curIndex];
   }
-
-
 
   @override
   void initState() {
@@ -124,14 +118,14 @@ class GifImageState extends State<GifImage>{
   void didUpdateWidget(GifImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.image != oldWidget.image) {
-      fetchGif(widget.image).then((imageInfors){
-        if(mounted)
+      fetchGif(widget.image).then((imageInfors) {
+        if (mounted)
           setState(() {
             _infos = imageInfors;
-            _fetchComplete=true;
+            _fetchComplete = true;
             _curIndex = widget.controller.value.toInt();
-            if(widget.onFetchCompleted!=null){
-              widget.onFetchCompleted();
+            if (widget.onFetchCompleted != null) {
+              widget.onFetchCompleted!();
             }
           });
       });
@@ -142,9 +136,9 @@ class GifImageState extends State<GifImage>{
     }
   }
 
-  void _listener(){
-    if(_curIndex!=widget.controller.value&&_fetchComplete){
-      if(mounted)
+  void _listener() {
+    if (_curIndex != widget.controller.value && _fetchComplete) {
+      if (mounted)
         setState(() {
           _curIndex = widget.controller.value.toInt();
         });
@@ -154,15 +148,15 @@ class GifImageState extends State<GifImage>{
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if(_infos==null){
-      fetchGif(widget.image).then((imageInfors){
-        if(mounted)
+    if (_infos == null) {
+      fetchGif(widget.image).then((imageInfors) {
+        if (mounted)
           setState(() {
             _infos = imageInfors;
-            _fetchComplete=true;
+            _fetchComplete = true;
             _curIndex = widget.controller.value.toInt();
-            if(widget.onFetchCompleted!=null){
-              widget.onFetchCompleted();
+            if (widget.onFetchCompleted != null) {
+              widget.onFetchCompleted!();
             }
           });
       });
@@ -184,8 +178,7 @@ class GifImageState extends State<GifImage>{
       centerSlice: widget.centerSlice,
       matchTextDirection: widget.matchTextDirection,
     );
-    if (widget.excludeFromSemantics)
-      return image;
+    if (widget.excludeFromSemantics) return image;
     return new Semantics(
       container: widget.semanticLabel != null,
       image: true,
@@ -195,54 +188,38 @@ class GifImageState extends State<GifImage>{
   }
 }
 
-
-
-final HttpClient _sharedHttpClient = HttpClient()..autoUncompress = false;
-
-HttpClient get _httpClient {
-  HttpClient client = _sharedHttpClient;
-  assert(() {
-    if (debugNetworkImageHttpClientProvider != null)
-      client = debugNetworkImageHttpClientProvider();
-    return true;
-  }());
-  return client;
-}
-
-
-Future<List<ImageInfo>> fetchGif(ImageProvider provider) async{
+Future<List<ImageInfo>> fetchGif(ImageProvider provider) async {
   List<ImageInfo> infos = [];
   dynamic data;
-  String key =provider is NetworkImage?provider.url:provider is AssetImage?provider.assetName:provider is MemoryImage?provider.bytes.toString():"";
-  if(GifImage.cache.caches.containsKey(key)){
-    infos = GifImage.cache.caches[key];
+  String key = provider is NetworkImage
+      ? provider.url
+      : provider is AssetImage
+          ? provider.assetName
+          : provider is MemoryImage
+              ? provider.bytes.toString()
+              : "";
+  if (GifImage.cache.caches.containsKey(key)) {
+    infos = GifImage.cache.caches[key]!;
     return infos;
   }
-  if(provider is NetworkImage){
+  if (provider is NetworkImage) {
     final Uri resolved = Uri.base.resolve(provider.url);
-    final HttpClientRequest request = await _httpClient.getUrl(resolved);
-    provider.headers?.forEach((String name, String value) {
-      request.headers.add(name, value);
-    });
-    final HttpClientResponse response = await request.close();
-    data = await consolidateHttpClientResponseBytes(
-      response,
-    );
-  }
-  else if(provider is AssetImage){
+    final response = await http.get(resolved);
+    if (response.statusCode == 200) {
+      data = response.bodyBytes;
+    }
+  } else if (provider is AssetImage) {
     AssetBundleImageKey key = await provider.obtainKey(ImageConfiguration());
-    data = await key.bundle.load(key.name);
-  }
-  else if(provider is FileImage){
+    data = (await key.bundle.load(key.name)).buffer.asUint8List();
+  } else if (provider is FileImage) {
     data = await provider.file.readAsBytes();
-  }
-  else if(provider is MemoryImage){
-    data =  provider.bytes;
+  } else if (provider is MemoryImage) {
+    data = provider.bytes;
   }
 
-  ui.Codec codec=await PaintingBinding.instance.instantiateImageCodec(data.buffer.asUint8List());
+  ui.Codec codec = await PaintingBinding.instance!.instantiateImageCodec(data);
   infos = [];
-  for(int i = 0;i<codec.frameCount;i++){
+  for (int i = 0; i < codec.frameCount; i++) {
     FrameInfo frameInfo = await codec.getNextFrame();
     //scale ??
     infos.add(ImageInfo(image: frameInfo.image));

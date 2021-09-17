@@ -1,14 +1,20 @@
 # flutter_gifimage
 
-We should know that in order to achieve Gif in flutter, we can use Image, but we have no way to manipulate Gif, for example: change its speed, control it has been playing in a frame,
- in which frame range loop. These problems can be solved by this widget,it also help you contain gif cache,avoid load frame every time.
+We can use gifs in Flutter but there is no way to manipulate them. If you are planning to:
+
+* change its speed
+* set the current frame of the gif
+* animate to and from specific frames
+* loop the gif frames in a specific range
+
+This package solves these problems, it also helps you to contain gif cache, to avoid that the frame is loaded over and over again.
 
 # Screenshots
 
 ![](arts/gif.gif)
 
 # Usage(Simple)
-  add in pubspec
+To install the package add this to your `pubspec.yaml`:
 
    ```dart
 
@@ -16,10 +22,10 @@ We should know that in order to achieve Gif in flutter, we can use Image, but we
 
    ```
 
- simple usage
+ Simple example usage:
 
  ```dart
-     GifController controller= GifController(vsync: this);
+     GifController controller = GifController(vsync: this);
 
 
      GifImage(
@@ -34,7 +40,7 @@ We should know that in order to achieve Gif in flutter, we can use Image, but we
 
  ```dart
  // loop from 0 frame to 29 frame
- controller.repeat(min:0,max:29,period:Duration(millseconds:300));
+ controller.repeat(min: 0, max: 29, period: Duration(milliseconds: 300));
 
  // jumpTo thrid frame(index from 0)
  controller.value = 0;
@@ -44,7 +50,7 @@ We should know that in order to achieve Gif in flutter, we can use Image, but we
 
  ```
 
- If you need to preCache gif,try this
+ If you need to preCache gif, try this
 
  ```dart
  // put imageProvider
@@ -56,7 +62,7 @@ We should know that in order to achieve Gif in flutter, we can use Image, but we
 
 
 # Thanks
-* [gif_ani](https://github.com/hyz1992/gif_ani)  (thanks for giving me idea)
+* [gif_ani](https://github.com/hyz1992/gif_ani)  (thanks for giving me the idea)
 
 # License
 
