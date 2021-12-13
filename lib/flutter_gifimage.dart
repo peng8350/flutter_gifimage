@@ -4,10 +4,13 @@
   time:2019-7-26 3:30
 */
 
+library flutter_gifimage;
+
+
+
 import 'dart:io';
 import 'dart:ui' as ui show Codec;
 import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
