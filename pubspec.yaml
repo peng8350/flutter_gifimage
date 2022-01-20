@@ -6,6 +6,7 @@ homepage: https://github.com/peng8350/flutter_gifimage
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
+  flutter: ">=0.4.1 <=2.1.0"
 
 dependencies:
   flutter:
